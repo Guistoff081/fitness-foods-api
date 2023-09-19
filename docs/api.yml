@@ -1,0 +1,6 @@
+openapi: 3.0.1
+info:
+  title: Ruby on Rails Challenge 20230918
+  description: CRUD Fitness Foods
+  version: '0.1'
+
