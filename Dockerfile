@@ -1,25 +1,20 @@
-# Use the official Ruby 3.0 image as a base image
 FROM ruby:3.2.2
 
-# Set the working directory in the container
-WORKDIR /app
+WORKDIR /src
 
-# Install system dependencies
 RUN apt-get update -qq && apt-get install -y \
-    nodejs \
-    postgresql-client
+    build-essential \
+    libpq-dev \
+    nodejs
 
-# Copy the Gemfile and Gemfile.lock into the container
 COPY Gemfile Gemfile.lock ./
 
-# Install gems
 RUN bundle install
 
-# Copy the rest of the application code into the container
 COPY . .
 
-# Expose port 3000 for the Rails server
+RUN rm -f /src/tmp/pids/server.pid
+
 EXPOSE 3000
 
-# Start the Rails server using Foreman
-CMD ["foreman", "start", "-f", "Procfile.dev"]
+CMD ["foreman", "start", "-f", "Procfile"]

@@ -1,34 +1,47 @@
 version: '3.8'
 services:
-
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fitness-foods-api-app
+    volumes:
+      - .:/src
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+      - redis
+    environment:
+      RAILS_ENV: development
+      MONGODB_HOST: fitness-foods-api-db
+      REDIS_URL: redis://fitness-foods-api-redis:6379/1
+    networks:
+      - default
+    restart: always
   mongodb:
     image: mongo:latest
-    container_name: mongodb
+    container_name: fitness-foods-api-db
+    restart: always
     ports:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+    networks:
+      - default
   redis:
     image: redis:latest
     restart: always
-    container_name: redis
+    container_name: fitness-foods-api-redis
     ports:
       - "6379:6379"
     volumes:
-      - redis_data
-  sidekiq:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    command: bundle exec sidekiq -C config/sidekiq.yml
-    container_name: sidekiq
-    volumes:
-      - .:/app
-    depends_on:
-      - redis
+      - redis_data:/data/redis
     environment:
-      RAILS_ENV: development
-      REDIS_URL: redis://redis:6379/1 # Redis service URL
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    networks:
+      - default
 volumes:
   redis_data:
     driver: local
